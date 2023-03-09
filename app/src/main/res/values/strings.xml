@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Movie App</string>
+    <string name="ratingbar_details">This is the rating of movie</string>
+</resources>
