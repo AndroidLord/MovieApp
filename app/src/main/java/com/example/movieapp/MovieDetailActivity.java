@@ -3,8 +3,13 @@ package com.example.movieapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -30,6 +35,24 @@ public class MovieDetailActivity extends AppCompatActivity {
         movieImageDetails = findViewById(R.id.movie_img_detail);
         ratingBarDetails = findViewById(R.id.ratingBar_detail);
 
+// hide status bar
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            View decorView = getWindow().getDecorView();
+            // Hide the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+            // Hide the navigation bar.
+            if (Build.VERSION.SDK_INT >= 18) {
+                uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+            }
+            if (Build.VERSION.SDK_INT >= 19) {
+                uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            }
+            decorView.setSystemUiVisibility(uiOptions);
+        }
 
         getDatafromIntent();
 
