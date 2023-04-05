@@ -26,6 +26,8 @@ public class MovieRecyclerAdaptor extends RecyclerView.Adapter<MovieViewHolder> 
         this.onMovieListener = onMovieListener;
     }
 
+
+
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -41,7 +43,7 @@ public class MovieRecyclerAdaptor extends RecyclerView.Adapter<MovieViewHolder> 
         MovieModel movieModel= modelList.get(position);
 
         holder.title.setText(movieModel.getTitle());
-       holder.run_time.setText(String.valueOf(movieModel.getVote_average()).substring(0,3));
+        holder.run_time.setText(String.valueOf(movieModel.getVote_average()).substring(0,3));
         holder.release_data.setText(movieModel.getRelease_date());
 
         holder.ratingBar.setRating((movieModel.getVote_average())/2);

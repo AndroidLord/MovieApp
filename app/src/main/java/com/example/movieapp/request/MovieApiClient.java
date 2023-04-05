@@ -86,6 +86,7 @@ public class MovieApiClient {
 
                 if(cancelRequest)
                     return;
+
                 if(response.code()==200){
 
                     List<MovieModel> list = new ArrayList<>(((MovieSearchResponse)response.body()).getMovieModelList());

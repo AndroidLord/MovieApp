@@ -20,7 +20,7 @@ public interface MovieApi {
 
 
     @GET("3/movie/popular")
-    Call<MovieSearchResponse> searchMovies(
+    Call<MovieSearchResponse> getPopularMovies(
             @Query("api_key") String key,
             @Query("page") String page
     );

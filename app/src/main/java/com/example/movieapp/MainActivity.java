@@ -5,6 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +18,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +26,7 @@ import com.example.movieapp.Utils.Credentials;
 import com.example.movieapp.Utils.MovieApi;
 import com.example.movieapp.adaptors.MovieRecyclerAdaptor;
 import com.example.movieapp.adaptors.OnMovieListener;
+import com.example.movieapp.adaptors.PopularMovieAdaptor;
 import com.example.movieapp.models.MovieModel;
 import com.example.movieapp.request.Servicey;
 import com.example.movieapp.response.MovieSearchResponse;
@@ -36,11 +42,15 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements OnMovieListener {
 
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView,mainRecyclerView;
     private OnMovieListener onMovieListener;
     private MovieRecyclerAdaptor adaptor;
 
     private MovieListViewModel viewModel;
+
+    List<MovieModel> popularList;
+    private LinearLayout mainScreenLL,recyclerLL;
+    private TextView pickOfTheDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,18 +58,59 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //setSupportActionBar(toolbar);
 
         //ID's
         recyclerView = findViewById(R.id.recyclerView);
-
+        mainRecyclerView = findViewById(R.id.mainScreenRecyclerView);
+        mainScreenLL = findViewById(R.id.mainScreenLinearLayout);
+        recyclerLL = findViewById(R.id.recyclerLinearLayout);
+        pickOfTheDay = findViewById(R.id.movieOfTheDayTextView);
 
         // View Model
         viewModel = new ViewModelProvider(this).get(MovieListViewModel.class);
 
+
+        Call<MovieSearchResponse> popularMoviesResponse = Servicey.getMovieApi().getPopularMovies(Credentials.API_KEY,"100");
+        popularList = new ArrayList<>();
+        popularMoviesResponse.enqueue(new Callback<MovieSearchResponse>() {
+            @Override
+            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
+
+                if(response.code()==200){
+
+                    popularList.clear();
+
+                    assert response.body() != null;
+                    popularList = response.body().getMovieModelList();
+
+                    PopularMovieAdaptor popularAdaptor = new PopularMovieAdaptor(MainActivity.this,popularList);
+                    mainRecyclerView.setAdapter(popularAdaptor);
+                    mainRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this,LinearLayoutManager.HORIZONTAL,false));
+
+                }else{
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
+
+            }
+        });
+
+        // Main Recycler View
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+
+        searchMovieApi("tom",100);
         SetupSearchView();
 
         configureRecyclerView();
+
+
 
         ObserveAnyChanges();
 
@@ -81,10 +132,6 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
 
                 if(movieModels!=null){
                     adaptor.setModelList(movieModels);
-//                    for (MovieModel movie: movieModels){
-//                        Log.d("success", "onChanged: Movie Name " + movie.getTitle());
-//
-//                    }
 
                 }
 
@@ -97,10 +144,13 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
 
     private void configureRecyclerView(){
 
+
+
+        // search Recycler View
         adaptor = new MovieRecyclerAdaptor(this);
 
         recyclerView.setAdapter(adaptor);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new GridLayoutManager(this,2,GridLayoutManager.VERTICAL,false));
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -218,6 +268,32 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
 
         final SearchView searchView = findViewById(R.id.search_View);
 
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickOfTheDay.setVisibility(View.GONE);
+                mainScreenLL.setVisibility(View.GONE);
+                recyclerLL.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
+        });
+
+        ImageView closeButton = (ImageView) searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
+
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                searchView.setIconified(true);
+
+                pickOfTheDay.setVisibility(View.VISIBLE);
+                mainScreenLL.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+
+
+            }
+        });
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -229,10 +305,39 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+
+                pickOfTheDay.setVisibility(View.GONE);
+                mainScreenLL.setVisibility(View.GONE);
+                recyclerLL.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.VISIBLE);
+
+                return true;
             }
         });
 
     }
+
+    @Override
+    public void onBackPressed() {
+
+        if(recyclerLL.getVisibility()==View.VISIBLE){
+
+            recyclerView.setVisibility(View.GONE);
+            recyclerLL.setVisibility(View.GONE);
+
+        }
+        else if(mainScreenLL.getVisibility()==View.GONE){
+
+            pickOfTheDay.setVisibility(View.VISIBLE);
+            mainScreenLL.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+            recyclerLL.setVisibility(View.GONE);
+
+        }
+        else{
+            super.onBackPressed();
+        }
+    }
+
 
 }
