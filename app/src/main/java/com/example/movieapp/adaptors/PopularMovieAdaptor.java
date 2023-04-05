@@ -20,9 +20,9 @@ public class PopularMovieAdaptor extends RecyclerView.Adapter<PopularMovieAdapto
     private Context context;
     private List<MovieModel> list;
 
-    public PopularMovieAdaptor(Context context, List<MovieModel> list) {
+    public PopularMovieAdaptor(Context context) {
         this.context = context;
-        this.list = list;
+
     }
 
     @NonNull
@@ -53,6 +53,11 @@ public class PopularMovieAdaptor extends RecyclerView.Adapter<PopularMovieAdapto
             return list.size();
 
         return 0;
+    }
+
+    public void setModelList(List<MovieModel> modelList) {
+        this.list = modelList;
+        notifyDataSetChanged();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

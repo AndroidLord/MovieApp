@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -45,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
     private RecyclerView recyclerView,mainRecyclerView;
     private OnMovieListener onMovieListener;
     private MovieRecyclerAdaptor adaptor;
-
+    private PopularMovieAdaptor popularAdaptor;
     private MovieListViewModel viewModel;
 
     List<MovieModel> popularList;
@@ -71,41 +68,8 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
         viewModel = new ViewModelProvider(this).get(MovieListViewModel.class);
 
 
-        Call<MovieSearchResponse> popularMoviesResponse = Servicey.getMovieApi().getPopularMovies(Credentials.API_KEY,"100");
-        popularList = new ArrayList<>();
-        popularMoviesResponse.enqueue(new Callback<MovieSearchResponse>() {
-            @Override
-            public void onResponse(Call<MovieSearchResponse> call, Response<MovieSearchResponse> response) {
+        popularMovieApi(1);
 
-                if(response.code()==200){
-
-                    popularList.clear();
-
-                    assert response.body() != null;
-                    popularList = response.body().getMovieModelList();
-
-                    PopularMovieAdaptor popularAdaptor = new PopularMovieAdaptor(MainActivity.this,popularList);
-                    mainRecyclerView.setAdapter(popularAdaptor);
-                    mainRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this,LinearLayoutManager.HORIZONTAL,false));
-
-                }else{
-
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<MovieSearchResponse> call, Throwable t) {
-
-            }
-        });
-
-        // Main Recycler View
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-
-
-        searchMovieApi("tom",100);
         SetupSearchView();
 
         configureRecyclerView();
@@ -113,14 +77,38 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
 
 
         ObserveAnyChanges();
+        ObservePopularChanges();
 
 
+
+    }
+
+    private void ObservePopularChanges() {
+
+
+        viewModel.getPopularMoviesList().observe(this, new Observer<List<MovieModel>>() {
+            @Override
+            public void onChanged(List<MovieModel> movieModels) {
+                // Observe Any Changes
+
+                if(movieModels!=null){
+                    popularAdaptor.setModelList(movieModels);
+
+                }
+
+
+            }
+        });
 
 
     }
 
     private void searchMovieApi(String query, int pageNumber){
         viewModel.searchMovieApi(query,pageNumber);
+    }
+
+    private void popularMovieApi(int pageNumber){
+        viewModel.searchPopularMovieApi(pageNumber);
     }
 
     private void ObserveAnyChanges(){
@@ -144,6 +132,10 @@ public class MainActivity extends AppCompatActivity implements OnMovieListener {
 
     private void configureRecyclerView(){
 
+        // Main Recycler View
+        popularAdaptor = new PopularMovieAdaptor(MainActivity.this);
+        mainRecyclerView.setAdapter(popularAdaptor);
+        mainRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this,LinearLayoutManager.HORIZONTAL,false));
 
 
         // search Recycler View
