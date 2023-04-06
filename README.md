@@ -8,13 +8,13 @@ This is an Android app built using Java and following the MVVM pattern. The app 
 <img align="center" src="https://github.com/AndroidLord/MovieApp/blob/master/images/The%20Movie%20App2.gif"  >
 
 
-### Screenshots
+## Screenshots
 <div style="display: flex;">
   <img align="start" src="https://github.com/AndroidLord/MovieApp/blob/master/images/front%202.jpg" width="320" height="640">
   <img align="start" src="https://github.com/AndroidLord/MovieApp/blob/master/images/onclick%202.jpg" width="320" height="640">
 </div>
 
-### Search
+## Search
 <div style="display: flex;">
   <img align="start" src="https://github.com/AndroidLord/MovieApp/blob/master/images/search%202.jpg" width="320" height="640">
   <img align="start" src="https://github.com/AndroidLord/MovieApp/blob/master/images/onclick%20search%202.jpg" width="320" height="640">
