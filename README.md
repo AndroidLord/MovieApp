@@ -49,8 +49,8 @@ This is an Android app built using Java and following the MVVM pattern. The app 
 - Use the search view to search for specific movies.
 
 ## Future Improvement
-- Implement search functionality to allow users to search for specific news articles
-- Add database integration to allow users to save articles they like
+- Implement Myriad Category to help find the best Pick.
+- Add database integration to allow users to save Movie they like
 - Improve UI and UX for better user experience
 
 ## API Reference
